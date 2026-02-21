@@ -56,7 +56,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 DATABASES = {
-    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -81,6 +85,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MEDIA_URL = '/media/'
@@ -88,8 +93,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
@@ -107,18 +113,3 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-if os.environ.get("RENDER") == "true":
-    import django
-    django.setup()
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    username = os.environ.get("DJANGO_SUPERUSER_USERNAME", "admin")
-    email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@example.com")
-    password = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "admin123")
-    if username and password and not User.objects.filter(username=username).exists():
-        User.objects.create_superuser(
-            username=username,
-            email=email,
-            password=password
-        )
