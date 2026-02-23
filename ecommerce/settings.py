@@ -18,6 +18,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://ecommerce-backend-2qhm.onrender.com",
 ]
 
+SECURE_SSL_REDIRECT = False
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
