@@ -137,7 +137,7 @@ class RequestPasswordResetEmail(APIView):
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
 
-            reset_link = f"https://ecommerce-frontend-virid-eight-33.vercel.app/reset-password/{uidb64}/{token}/"
+            reset_link = f"https://martiq.vercel.app/reset-password/{uidb64}/{token}/"
 
             EmailMessage(
                 subject="Password Reset",

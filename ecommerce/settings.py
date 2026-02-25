@@ -110,7 +110,7 @@ DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://ecommerce-frontend-virid-eight-33.vercel.app",
+    "https://martiq.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
