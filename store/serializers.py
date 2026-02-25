@@ -7,10 +7,16 @@ from django.utils.http import urlsafe_base64_decode
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = "__all__"
 
+    def get_image(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -33,7 +39,6 @@ class CartSerializer(serializers.ModelSerializer):
 
     def get_total_price(self, obj):
         return obj.product.price * obj.quantity
-
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -62,10 +67,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
-
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
-
 
 
 class SetNewPasswordSerializer(serializers.Serializer):
@@ -92,7 +95,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
         if not PasswordResetTokenGenerator().check_token(user, token):
             raise serializers.ValidationError({"token": "Reset link is invalid or expired"})
 
-        
         attrs["user"] = user
         return attrs
 
