@@ -9,6 +9,7 @@ from django.utils.encoding import smart_bytes, smart_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
+from django.db.models import F
 
 from .models import Product, Cart, Order
 from .serializers import (
@@ -30,16 +31,13 @@ class CartViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-
         if user.is_authenticated:
-            return Cart.objects.filter(user=user)
-
+            return Cart.objects.filter(user=user).select_related("product").order_by("-added_at")
         session_key = self.request.session.session_key
         if not session_key:
             self.request.session.create()
             session_key = self.request.session.session_key
-
-        return Cart.objects.filter(session_key=session_key)
+        return Cart.objects.filter(session_key=session_key).select_related("product").order_by("-added_at")
 
     def create(self, request, *args, **kwargs):
         product_id = request.data.get("product")
@@ -64,7 +62,6 @@ class CartViewSet(viewsets.ModelViewSet):
             if not session_key:
                 request.session.create()
                 session_key = request.session.session_key
-
             cart_item, created = Cart.objects.get_or_create(
                 session_key=session_key,
                 product=product,
@@ -72,12 +69,11 @@ class CartViewSet(viewsets.ModelViewSet):
             )
 
         if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
+            Cart.objects.filter(id=cart_item.id).update(quantity=F("quantity") + quantity)
+            cart_item.refresh_from_db()
 
         serializer = CartSerializer(self.get_queryset(), many=True)
         return Response(serializer.data, status=200)
-
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -85,8 +81,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
-
+        return Order.objects.filter(user=self.request.user).order_by("-created_at")
 
 
 class RegisterView(APIView):
@@ -122,8 +117,6 @@ class LoginView(APIView):
         })
 
 
-
-
 class RequestPasswordResetEmail(APIView):
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
@@ -148,7 +141,7 @@ class RequestPasswordResetEmail(APIView):
         return Response({
             "success": True,
             "message": "If this email is registered, a reset link has been sent.",
-            "reset_link": reset_link  
+            "reset_link": reset_link
         }, status=200)
 
 

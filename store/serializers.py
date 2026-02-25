@@ -15,7 +15,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         if obj.image:
-            return obj.image.url
+            try:
+                return obj.image.url
+            except Exception:
+                return None
         return None
 
 
