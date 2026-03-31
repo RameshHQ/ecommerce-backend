@@ -11,7 +11,7 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://ecommerce-backend-2qhm.onrender.com",
+    "https://ecommerce-backend-7p7l.onrender.com",
 ]
 
 SECURE_SSL_REDIRECT = False
